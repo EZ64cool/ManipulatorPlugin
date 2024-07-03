@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.3",
+	"FriendlyName": "ManipulatorPlugin",
+	"Description": "For Jamie",
+	"Category": "Viewport helper",
+	"CreatedBy": "Tom Haffenden",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.3.0",
+	"CanContainContent": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "ManipulatorPlugin",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
