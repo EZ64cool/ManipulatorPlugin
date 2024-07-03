@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,7 +6,6 @@
 class FManipulatorPluginStyle
 {
 public:
-
 	static void Initialize();
 
 	static void Shutdown();
@@ -17,15 +14,13 @@ public:
 	static void ReloadTextures();
 
 	/** @return The Slate style set for the Shooter game */
-	static const ISlateStyle& Get();
+	static const ISlateStyle &Get();
 
 	static FName GetStyleSetName();
 
 private:
-
-	static TSharedRef< class FSlateStyleSet > Create();
+	static TSharedRef<class FSlateStyleSet> Create();
 
 private:
-
-	static TSharedPtr< class FSlateStyleSet > StyleInstance;
+	static TSharedPtr<class FSlateStyleSet> StyleInstance;
 };

@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "ManipulatorPlugin.h"
 #include "ManipulatorPluginStyle.h"
 #include "ManipulatorPluginCommands.h"
@@ -20,45 +18,45 @@ static const FName ManipulatorPluginTabName("ManipulatorPlugin");
 
 void FManipulatorPluginModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
-	
-	FManipulatorPluginStyle::Initialize();
-	FManipulatorPluginStyle::ReloadTextures();
+    // This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 
-	FManipulatorPluginCommands::Register();
-	
-	PluginCommands = MakeShareable(new FUICommandList);
+    FManipulatorPluginStyle::Initialize();
+    FManipulatorPluginStyle::ReloadTextures();
 
-	PluginCommands->MapAction(
-		FManipulatorPluginCommands::Get().MoveToAction,
-		FExecuteAction::CreateStatic(&FManipulatorPluginModule::PlaceAtCursorExec),
-		FCanExecuteAction());
+    FManipulatorPluginCommands::Register();
+
+    PluginCommands = MakeShareable(new FUICommandList);
+
+    PluginCommands->MapAction(
+        FManipulatorPluginCommands::Get().MoveToAction,
+        FExecuteAction::CreateStatic(&FManipulatorPluginModule::PlaceAtCursorExec),
+        FCanExecuteAction());
 
     PluginCommands->MapAction(
         FManipulatorPluginCommands::Get().CopyTransformAction,
         FExecuteAction::CreateStatic(&FManipulatorPluginModule::CopyTransformExec),
         FCanExecuteAction());
 
-    FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
+    FLevelEditorModule &LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
     LevelEditorModule.GetGlobalLevelEditorActions()->Append(PluginCommands.ToSharedRef());
 }
 
 void FManipulatorPluginModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+    // This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
+    // we call this function before unloading the module.
 
-	UToolMenus::UnRegisterStartupCallback(this);
+    UToolMenus::UnRegisterStartupCallback(this);
 
-	UToolMenus::UnregisterOwner(this);
+    UToolMenus::UnregisterOwner(this);
 
-	FManipulatorPluginStyle::Shutdown();
+    FManipulatorPluginStyle::Shutdown();
 
-	FManipulatorPluginCommands::Unregister();
+    FManipulatorPluginCommands::Unregister();
 }
 
-static FTransform RotateAroundPoint(const FTransform& original, const FVector& pivot, const FQuat& rotation)
+static FTransform RotateAroundPoint(const FTransform &original, const FVector &pivot, const FQuat &rotation)
 {
     FTransform pivotTransform(pivot);
     FTransform pivotToActor(original * pivotTransform.Inverse());
@@ -74,26 +72,26 @@ void FManipulatorPluginModule::PlaceAtCursorExec()
 
     // Compute a view.
     FSceneViewFamilyContext ViewFamily(FSceneViewFamily::ConstructionValues(
-        GEditor->GetActiveViewport(),
-        GCurrentLevelEditingViewportClient->GetScene(),
-        GCurrentLevelEditingViewportClient->EngineShowFlags)
-        .SetRealtimeUpdate(GCurrentLevelEditingViewportClient->IsRealtime()));
-    FSceneView* View = GCurrentLevelEditingViewportClient->CalcSceneView(&ViewFamily);
+                                           GEditor->GetActiveViewport(),
+                                           GCurrentLevelEditingViewportClient->GetScene(),
+                                           GCurrentLevelEditingViewportClient->EngineShowFlags)
+                                           .SetRealtimeUpdate(GCurrentLevelEditingViewportClient->IsRealtime()));
+    FSceneView *View = GCurrentLevelEditingViewportClient->CalcSceneView(&ViewFamily);
 
     const FViewportCursorLocation Cursor(View, GCurrentLevelEditingViewportClient, HitX, HitY);
     const FActorPositionTraceResult TraceResult = FActorPositioning::TraceWorldForPositionWithDefault(Cursor, *View);
 
     FVector worldPosition = TraceResult.Location;
 
-    USelection* SelectedActors = GEditor->GetSelectedActors();
+    USelection *SelectedActors = GEditor->GetSelectedActors();
 
     GEditor->BeginTransaction(FText::FromString("Move To"));
 
-    FEditorModeTools * mode_tools = GCurrentLevelEditingViewportClient->GetModeTools();
+    FEditorModeTools *mode_tools = GCurrentLevelEditingViewportClient->GetModeTools();
 
     FVector relative = worldPosition - mode_tools->PivotLocation;
 
-    AActor* mainActor = SelectedActors->GetBottom<AActor>();
+    AActor *mainActor = SelectedActors->GetBottom<AActor>();
 
     const UActorFactory *factory = GEditor->FindActorFactoryForActorClass(mainActor->GetClass());
     FQuat targetRot;
@@ -128,7 +126,6 @@ void FManipulatorPluginModule::PlaceAtCursorExec()
         }
     }
 
-
     mode_tools->PivotLocation = worldPosition;
     mode_tools->SnappedLocation = worldPosition;
 
@@ -147,26 +144,26 @@ void FManipulatorPluginModule::CopyTransformExec()
         return;
     }
 
-    const auto actor_prox = static_cast<const HActor*>(proxy);
+    const auto actor_prox = static_cast<const HActor *>(proxy);
 
     const auto &transfrom = actor_prox->Actor->GetActorTransform();
 
-    USelection* SelectedActors = GEditor->GetSelectedActors();
+    USelection *SelectedActors = GEditor->GetSelectedActors();
 
     GEditor->BeginTransaction(FText::FromString("Copy Transform"));
 
     for (FSelectionIterator Iter(*SelectedActors); Iter; ++Iter)
     {
-        AActor* Actor = Cast<AActor, UObject>(*Iter);
+        AActor *Actor = Cast<AActor, UObject>(*Iter);
         if (Actor)
         {
-            //Actor->AddActorWorldTransform(RelativeTransform);
+            // Actor->AddActorWorldTransform(RelativeTransform);
             Actor->Modify();
             Actor->SetActorTransform(transfrom);
         }
     }
 
-    FEditorModeTools* mode_tools = GCurrentLevelEditingViewportClient->GetModeTools();
+    FEditorModeTools *mode_tools = GCurrentLevelEditingViewportClient->GetModeTools();
     mode_tools->PivotLocation = transfrom.GetLocation();
     mode_tools->SnappedLocation = transfrom.GetLocation();
     mode_tools->TranslateRotateXAxisAngle = transfrom.Rotator().Yaw;
@@ -176,5 +173,5 @@ void FManipulatorPluginModule::CopyTransformExec()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FManipulatorPluginModule, ManipulatorPlugin)

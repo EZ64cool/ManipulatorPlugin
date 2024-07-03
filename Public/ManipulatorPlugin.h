@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -11,15 +9,13 @@ class FMenuBuilder;
 class FManipulatorPluginModule : public IModuleInterface
 {
 public:
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
+
 	/** This function will be bound to Command. */
 	static void PlaceAtCursorExec();
-    static void CopyTransformExec();
-
+	static void CopyTransformExec();
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
