@@ -1,5 +1,5 @@
-This is a helper plugin for Unreal that adds two commands
+This is a helper plugin for Unreal that adds two commands. (rebindable in settings)
 
-Ctrl+T: Place entity at cursor
+Alt+T: Place entity at cursor
 
-Ctrl+W: Copy hovered transform
+Alt+W: Copy hovered transform
